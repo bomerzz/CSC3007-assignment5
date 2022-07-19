@@ -62,7 +62,8 @@ fetch('https://api.data.gov.sg/v1/environment/psi')
     zoom: 11,
     maxBounds: L.latLngBounds(L.latLng(1.1, 103.5), L.latLng(1.5, 104.3))
     })
-    .addLayer(tiles);
+    .addLayer(tiles)
+    .setZoom(11);
 
     for(var i = 0; i < 6; i++) {
       console.log(locationData[i].name)
@@ -98,11 +99,7 @@ fetch('https://api.data.gov.sg/v1/environment/psi')
                             permanent: true,
                             direction: 'center',
                             className: "my-labels"
-                         })
-      
-      
-      
-      ;
+                         });
 
     }
 

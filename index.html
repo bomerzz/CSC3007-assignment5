@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>24H PSI Readings</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <style>
+        #map {
+    width: 1000px;
+    height: 600px;
+}
+
+.leaflet-tooltip.my-labels {
+  background-color: transparent;
+  border: transparent;
+  box-shadow: none;
+  font-weight: bold;
+  font-size: 10px;
+  }
+  
+    </style>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.css" />
+</head>
+<body>
+    
+         
+  <section class="section">
+    <div class="container">
+      <h1 class="title">
+        24H PSI Readings
+      </h1>
+      <div id="map"></div>
+    </div>
+  </section>
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.js"></script>
+  <script>
+    //let tiles = new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+    let tiles = new L.tileLayer('https://maps-{s}.onemap.sg/v3/Default/{z}/{x}/{y}.png', {
+  detectRetina: true,
+  maxZoom: 18,
+  minZoom: 11,
+  //Do not remove this attribution
+  attribution: '<img src="https://docs.onemap.sg/maps/images/oneMap64-01.png" style="height:20px;width:20px;">' +
+               'New OneMap | Map data © contributors, <a href="http://SLA.gov.sg">Singapore Land Authority</a>'
+});
+
+fetch('https://api.data.gov.sg/v1/environment/psi')
+  .then(response => response.json())
+  .then(data => {
+    let regionData ={}
+    let locationData =  data.region_metadata;
+
+    //console.log(locationData)
+    let carpark = data.items[0].readings.psi_twenty_four_hourly;
+    console.log(carpark)
+
+    let map = new L.Map("map", {
+    center: [1.347833, 103.809357], 
+    zoom: 11,
+    maxBounds: L.latLngBounds(L.latLng(1.1, 103.5), L.latLng(1.5, 104.3))
+    })
+    .addLayer(tiles);
+
+    for(var i = 0; i < 6; i++) {
+      console.log(locationData[i].name)
+      let psi = carpark[locationData[i].name]
+      console.log(psi)
+      let lat = locationData[i].label_location.latitude
+      let long = locationData[i].label_location.longitude
+      let col = '#34eb6b' 
+      const template = "<div>Location: " + locationData[i].name +'<br>' + "PSI: " + psi.toString() + "</div>";
+
+      let popup = "<br>" + locationData[i] + ""
+
+
+      if (psi >55 && psi <150) {
+        col = '#e6f277'
+
+      }
+      else if (psi > 150 && psi <250) {
+        col = '#edb51a'
+      }
+      else if (psi > 250) {
+        col = '#d43f08'
+      }
+      var circle = L.circle([lat, long], {
+          color: col,
+          fillColor: col,
+          fillOpacity: 0.5,
+          radius: 500
+      }).addTo(map)
+      .bindPopup(template)
+
+      .bindTooltip(psi.toString(),{
+                            permanent: true,
+                            direction: 'center',
+                            className: "my-labels"
+                         })
+      
+      
+      
+      ;
+
+    }
+
+    //let marker = L.marker([1.3775567706920313, 103.84876554003246]).addTo(map);
+
+   
+    //marker.bindPopup("<b>SIT NYP campus</b>");
+
+  })
+
+
+                    
+  </script>
+</body>
+</html>
